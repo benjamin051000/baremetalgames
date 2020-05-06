@@ -4,8 +4,9 @@ entity vga_top is
 	port (
 		clk, rst : in std_logic;
 
-		wren : in std_logic;
-		data : in std_logic_vector(11 downto 0);
+		-- Signals for receiving VRAM data from CPU
+		cpu_is_writing : in std_logic;
+		wraddr, data : in std_logic_vector(11 downto 0);
 
 		vga_hsync, vga_vsync : out std_logic;
 		r, g, b : out std_logic_vector(3 downto 0)
@@ -43,8 +44,10 @@ begin -- STR
 			hcount => hcount,
 			clk => clk,
 
-			wren => wren,
+			cpu_is_writing => cpu_is_writing,
+			wraddr => wraddr,
 			data => data,
+
 
 			video_on => video_on,
 			r => r,

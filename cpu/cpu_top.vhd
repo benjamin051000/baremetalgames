@@ -7,7 +7,11 @@ port(
     clk, rst : in std_logic;
     inport_enable : in std_logic; -- This (and rst) will be assigned to buttons 
     switches : in std_logic_vector(9 downto 0);
-    leds : out std_logic_vector(31 downto 0)
+    leds : out std_logic_vector(31 downto 0);
+
+    -- Used to send data to VRAM
+    vga_wren : out std_logic;
+    vga_wraddr, vga_data : out std_logic_vector(11 downto 0)
 );
 end cpu_top;
 

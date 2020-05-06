@@ -10,8 +10,8 @@ port (
 	-- video_on controlled by sync gen
 	video_on, clk : in std_logic;
 
-	wren : in std_logic;
-	data : in std_logic_vector(11 downto 0);
+	cpu_is_writing : in std_logic;
+	wraddr, data : in std_logic_vector(11 downto 0);
 	
 	r, g, b : out std_logic_vector(3 downto 0)
 );
@@ -27,17 +27,17 @@ architecture bhv of rgb_gen is
 	
 begin
 	
-	-- Instantiate ROM
-	U_RAM : entity work.vga_ram
-	port map (
-		address => address,
-		clock => clk,
-		q => q,
+	-- Instantiate frame buffer
+	U_FRAME_BUF : entity work.double_frame_buf
+		port map (
+			clk => clk,
 
-		-- Used for input from CPU
-		wren => wren,
-		data => data
-	);
+			cpu_is_writing => cpu_is_writing,
+			readAddr => address,
+			wrAddr => wraddr,
+			data => data,
+			q => q
+		);
 	
 	
 	-- Output signals
@@ -55,7 +55,8 @@ begin
 	row <= shift_right((u_vcnt - row_offset), 1); -- Uses floor division.
 	col <= shift_right((u_hcnt - col_offset), 1); -- Change to unsigned.
 	
-	address <= std_logic_vector(row(5 downto 0) & col(5 downto 0)); -- Concatenate vectors (lower 6 bits)
+	-- When video_on is asserted, the address comes from the row and column counters. During the blanking period, the address comes from wraddr, so the CPU can write at various addresses during this time.
+	address <= std_logic_vector(row(5 downto 0) & col(5 downto 0)) when video_on = '1' else wraddr;
 	
 
 	process(u_vcnt, u_hcnt)
