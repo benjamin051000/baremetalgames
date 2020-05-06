@@ -4,7 +4,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
--- Configuration currently set up for: 640x480 @ 60Hz
+-- Timings currently set for: 640x480 @ 60Hz (requires 25 MHz)
 
 package VGA_LIB is
 

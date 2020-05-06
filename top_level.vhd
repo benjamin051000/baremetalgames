@@ -3,32 +3,62 @@ use ieee.std_logic_1164.all;
 
 entity top_level is
     port (
-        clk, rst : in std_logic
+        clk, rst : in std_logic;
+
+        -- Video output signals
+        vga_hsync, vga_vsync : out std_logic;
+        r, g, b : out std_logic_vector(3 downto 0);
+        
+        -- IO for CPU
+        inport_enable : in std_logic;
+        switches : in std_logic_vector(9 downto 0);
+        leds : out std_logic_vector(31 downto 0)
     );
 end top_level;
 
 
-architecture bhv of top_level is
-begin
+architecture STR of top_level is
+
+    signal clk_gen_out : std_logic;
+
+    signal wren : std_logic;
+    signal data : std_logic_vector(11 downto 0);
+
+begin -- STR
+
+    -- Clock generator
+	U_CLK_DIV : entity work.clk_div
+        generic map(
+            clk_in_freq => 50000000, -- 50 MHz -> 25 MHz (for VGA core)
+            clk_out_freq => 25000000
+        )
+        port map(
+            clk_in => clk,
+            clk_out => clk_gen_out,
+            rst => rst
+        );
+
 
     U_CPU : entity work.cpu_top
         port map(
-            clk => clk,
+            clk => clk_gen_out,
             rst => rst,
-            inport_enable => '0',
-            switches => (others => '0'),
-            leds => open
+            inport_enable => inport_enable,
+            switches => switches,
+            leds => leds
         );
+
 
     U_VGA : entity work.vga_top
         port map(
-            clk50MHz => clk,
-            switch => (others => '0'),
-            button => (others => '0'),
-            vga_hsync => open,
-            vga_vsync => open,
-            r => open,
-            g => open,
-            b => open
+            clk => clk_gen_out,
+            rst => rst,
+            wren => wren,
+            data => data,
+            vga_hsync => vga_hsync,
+            vga_vsync => vga_vsync,
+            r => r,
+            g => g,
+            b => b
         );
-end bhv;
+end STR;

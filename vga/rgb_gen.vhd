@@ -6,10 +6,12 @@ use work.vga_lib.all;
 
 entity rgb_gen is
 port (
-	inputs : in std_logic_vector(2 downto 0); -- This is 3 switches
 	vcount, hcount : in std_logic_vector(9 downto 0);
 	-- video_on controlled by sync gen
 	video_on, clk : in std_logic;
+
+	wren : in std_logic;
+	data : in std_logic_vector(11 downto 0);
 	
 	r, g, b : out std_logic_vector(3 downto 0)
 );
@@ -26,11 +28,15 @@ architecture bhv of rgb_gen is
 begin
 	
 	-- Instantiate ROM
-	U_ROM : entity work.vga_rom
+	U_RAM : entity work.vga_ram
 	port map (
 		address => address,
 		clock => clk,
-		q => q
+		q => q,
+
+		-- Used for input from CPU
+		wren => wren,
+		data => data
 	);
 	
 	
@@ -41,7 +47,6 @@ begin
 	
 
 	-- Create location based off the inputs.
-	location <= to_integer(unsigned(inputs));
 	u_vcnt <= unsigned(vcount);
 	u_hcnt <= unsigned(hcount);
 
@@ -53,7 +58,7 @@ begin
 	address <= std_logic_vector(row(5 downto 0) & col(5 downto 0)); -- Concatenate vectors (lower 6 bits)
 	
 
-	process(u_vcnt, u_hcnt, location)
+	process(u_vcnt, u_hcnt)
 	begin
 		en <= '0';
 		row_offset <= (others => '0');
