@@ -8,7 +8,7 @@ entity rgb_gen is
 port (
 	vcount, hcount : in std_logic_vector(9 downto 0);
 	-- video_on controlled by sync gen
-	video_on, clk : in std_logic;
+	video_on, clk, rst : in std_logic;
 
 	cpu_is_writing : in std_logic;
 	wraddr, data : in std_logic_vector(11 downto 0);
@@ -31,11 +31,15 @@ begin
 	U_FRAME_BUF : entity work.double_frame_buf
 		port map (
 			clk => clk,
+			rst => rst,
 
 			cpu_is_writing => cpu_is_writing,
+			video_on => video_on,
+
 			readAddr => address,
 			wrAddr => wraddr,
 			data => data,
+			
 			q => q
 		);
 	
@@ -61,7 +65,7 @@ begin
 
 	process(u_vcnt, u_hcnt)
 	begin
-		en <= '0';
+		en <= '0';  -- TODO is this signal necessary?
 		row_offset <= (others => '0');
 		col_offset <= (others => '0');
 		

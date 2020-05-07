@@ -43,6 +43,7 @@ begin -- STR
 			vcount => vcount,
 			hcount => hcount,
 			clk => clk,
+			rst => rst,
 
 			cpu_is_writing => cpu_is_writing,
 			wraddr => wraddr,
