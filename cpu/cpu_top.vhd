@@ -10,7 +10,7 @@ port(
     leds : out std_logic_vector(31 downto 0);
 
     -- Used to send data to VRAM
-    vga_wren : out std_logic;
+    writing_to_vram : out std_logic;
     vga_wraddr, vga_data : out std_logic_vector(11 downto 0)
 );
 end cpu_top;
@@ -78,7 +78,7 @@ begin
         switches => switches,
         leds => leds,
 
-        vga_wren => vga_wren,
+        writing_to_vram => writing_to_vram,
         vga_wraddr => vga_wraddr,
         vga_data => vga_data
     );

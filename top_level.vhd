@@ -21,7 +21,8 @@ architecture STR of top_level is
 
     signal clk_gen_out : std_logic;
 
-    signal wren : std_logic; -- Should this be passed to the cpu? May be unnecessary 
+    signal writing_to_vram : std_logic;
+     
     signal wraddr, data : std_logic_vector(11 downto 0);
 
 begin -- STR
@@ -48,7 +49,7 @@ begin -- STR
             leds => leds,
 
             -- Signals to connect to VGA controller
-            vga_wren => wren,
+            writing_to_vram => writing_to_vram,
             vga_wraddr => wraddr,
             vga_data => data
         );
@@ -59,7 +60,7 @@ begin -- STR
             clk => clk_gen_out,
             rst => rst,
 
-            cpu_is_writing => wren,
+            cpu_is_writing => writing_to_vram,
             wraddr => wraddr,
             data => data,
 

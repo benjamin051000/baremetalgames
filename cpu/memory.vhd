@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 entity memory is
 generic (WIDTH : natural := 32);
 port (
-    addr : in std_logic_vector(WIDTH-1 downto 0); -- only 9-2 will read RAM data
+    addr : in std_logic_vector(WIDTH-1 downto 0); -- 9..2 used for RAM, 11..0 used for VRAM
     inputData : in std_logic_vector(31 downto 0);
 
     memWrite, inportEnSel, inportEn : in std_logic;
@@ -16,14 +16,16 @@ port (
     outportData, readData : out std_logic_vector(WIDTH-1 downto 0);
 
     -- Used to send data from memory to VRAM
-    vga_wren : out std_logic;
+    writing_to_vram : out std_logic;
     vga_wraddr, vga_data : out std_logic_vector(11 downto 0)
 );
 end memory;
 
 
-
 architecture str of memory is
+
+    -- adjustedAddr is used as an intermediate signal to check whether data should be written to VRAM or RAM.
+    signal adjustedAddr : std_logic_vector(WIDTH-1 downto 0);
 
     signal inport0En, inport1En : std_logic;
     
@@ -33,16 +35,14 @@ architecture str of memory is
 
     signal outportWrEn, ramWrEn : std_logic;
 
-    -- signal resizedInput : std_logic_vector(31 downto 0);
+    constant INPORT0_ADDR : natural := 65528; -- FFF8
+    constant INPORT1_ADDR : natural := 65532; -- FFFC
 
-    constant INPORT0_ADDR : natural := 65528;
-    constant INPORT1_ADDR : natural := 65532;
-    constant RAM_MAX_ADDR : natural := 1024; -- before shifting by 2
+    -- Highest address to CPU RAM. Any higher addresses (which will be 11 bits wide) will point to VRAM.
+    constant RAM_MAX_ADDR : natural := 1023; -- before shifting by 2
+
 
 begin
-
-
-    -- resizedInput <= std_logic_vector(resize(unsigned(inputData), 32));
 
     -- Inport enable logic
     inport0En <= inportEn and not inportEnSel; -- Switch set to low
@@ -52,14 +52,23 @@ begin
     -- Logic to control outportWrEn, ramWrEn, and mux_sel
     mux_sel <=  "00" when to_integer(unsigned(addr)) = INPORT0_ADDR else
                 "01" when to_integer(unsigned(addr)) = INPORT1_ADDR else
-                "10" when to_integer(unsigned(addr)) >= 0 and to_integer(unsigned(addr)) <= 1023
+                "10" when to_integer(unsigned(addr)) >= 0 and to_integer(unsigned(addr)) <= RAM_MAX_ADDR
                 else "10";
     
     outportWrEn <= '1' when (to_integer(unsigned(addr)) = INPORT1_ADDR) and memWrite = '1' else '0';
 
-    ramWrEn <= '1' when (to_integer(unsigned(addr)) >= 0 and to_integer(unsigned(addr)) <= 1023) and memWrite = '1' else '0';
+    ramWrEn <= '1' when (to_integer(unsigned(addr)) >= 0 and to_integer(unsigned(addr)) <= RAM_MAX_ADDR) and memWrite = '1' else '0';
 
+    -------------------- VGA Output --------------------
 
+    -- vga_wren will be asserted during store word instructions when the address is higher than the maximum value allotted for CPU RAM.
+    writing_to_vram <= not ramWrEn and memWrite;
+
+    -- Address and data in VRAM are both 12 bits wide
+    vga_data <= writeData(11 downto 0);
+    vga_wraddr <= addr(11 downto 0);
+
+    -------------------- Structural architecture of memory --------------------
 
     -- Instantiate RAM
     U_RAM : entity work.ram
@@ -112,7 +121,6 @@ begin
         output => readData
     );
 
-
     -- Outport logic
     U_OUTPORT : entity work.reg
     generic map (width => 32)
@@ -123,6 +131,5 @@ begin
         input => writeData,
         output => outportData
     );
-
 
 end str;
