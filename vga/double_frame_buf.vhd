@@ -79,9 +79,11 @@ begin
                     -- Buffer output (to RGB signals) comes from readAddr
                     q <= q_b;
 
-                    if(video_on = '0') then
+                    -- Only switch RAMs when the CPU is done writing and there is a VSYNC signal.
+                    if(video_on = '0' and cpu_is_writing = '0') then
                         next_state <= B;
                     end if;
+
 
                 when B =>
                     -- Write to B, read from A
@@ -90,11 +92,9 @@ begin
 
                     addr_a <= readAddr;
                     wren_a <= '0';
-                    -- Buffer output (to RGB signals) comes from readAddr
                     q <= q_a;
 
-                    -- Only switch RAMs when the CPU is done writing and there is a VSYNC signal.
-                    if(video_on = '0') then
+                    if(video_on = '0' and cpu_is_writing = '0') then
                         next_state <= A;
                     end if;
 
