@@ -13,7 +13,11 @@ port (
 
     clk, rst : in std_logic; -- For registers and RAM
 
-    outportData, readData : out std_logic_vector(WIDTH-1 downto 0)
+    outportData, readData : out std_logic_vector(WIDTH-1 downto 0);
+
+    -- Used to send data from memory to VRAM
+    vga_wren : out std_logic;
+    vga_wraddr, vga_data : out std_logic_vector(11 downto 0)
 );
 end memory;
 

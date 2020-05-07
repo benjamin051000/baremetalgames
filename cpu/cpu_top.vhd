@@ -76,7 +76,11 @@ begin
 
         inport_enable => inport_enable,
         switches => switches,
-        leds => leds
+        leds => leds,
+
+        vga_wren => vga_wren,
+        vga_wraddr => vga_wraddr,
+        vga_data => vga_data
     );
 
 

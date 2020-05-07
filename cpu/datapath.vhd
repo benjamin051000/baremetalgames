@@ -18,7 +18,11 @@ port (
     leds : out std_logic_vector(31 downto 0);
     IR_out_to_ctrl, IR_out_low : out instruction; -- Output from IR 
     
-    clk, rst : in std_logic
+    clk, rst : in std_logic;
+
+    -- Used to send data to VRAM
+    vga_wren : out std_logic;
+    vga_wraddr, vga_data : out std_logic_vector(11 downto 0)
 );
 end datapath;
 
@@ -128,7 +132,11 @@ begin
         clk => clk,
         rst => rst,
         outportData => leds,
-        readData => sig_memory_out
+        readData => sig_memory_out,
+
+        vga_wren => vga_wren,
+        vga_wraddr => vga_wraddr,
+        vga_data => vga_data
     );
 
     
