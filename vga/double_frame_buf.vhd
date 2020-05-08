@@ -59,7 +59,7 @@ begin
         end process;
 
         -- Combinational process to determine outputs based on state and inputs
-        process(state, readAddr, wrAddr, q_a, q_b, video_on)
+        process(state, readAddr, wrAddr, q_a, q_b, video_on, cpu_is_writing)
         begin
             -- addr_a <= readAddr;
             -- wren_a <= '0';

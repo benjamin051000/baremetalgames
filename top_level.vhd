@@ -11,7 +11,7 @@ entity top_level is
         
         -- IO for CPU
         inport_enable : in std_logic;
-        switches : in std_logic_vector(9 downto 0);
+        switch : in std_logic_vector(9 downto 0);
         leds : out std_logic_vector(31 downto 0)
     );
 end top_level;
@@ -45,7 +45,7 @@ begin -- STR
             clk => clk_gen_out,
             rst => rst,
             inport_enable => inport_enable,
-            switches => switches,
+            switches => switch,
             leds => leds,
 
             -- Signals to connect to VGA controller

@@ -66,7 +66,7 @@ begin
 
     -- Address and data in VRAM are both 12 bits wide
     vga_data <= writeData(11 downto 0);
-    vga_wraddr <= addr(11 downto 0);
+    vga_wraddr <= addr(11 downto 0); -- 
 
     -------------------- Structural architecture of memory --------------------
 
