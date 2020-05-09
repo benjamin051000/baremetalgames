@@ -31,7 +31,7 @@ architecture bhv of double_frame_buf is
 begin
 
     -- Instantiate RAM
-    U_RAM_A : entity work.vga_ram
+    U_RAM_A : entity work.frame_buffer_ram
         port map (
             clock => clk,
             address => addr_a,
