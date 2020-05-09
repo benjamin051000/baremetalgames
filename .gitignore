@@ -1,3 +1,4 @@
 /quartus
 *.qip
 *.cmp
+/modelsim

@@ -25,7 +25,11 @@ architecture STR of top_level is
      
     signal wraddr, data : std_logic_vector(11 downto 0);
 
+    signal rst_low : std_logic;
+
 begin -- STR
+
+    rst_low <= not rst;
 
     -- Clock generator
 	U_CLK_DIV : entity work.clk_div
@@ -36,14 +40,14 @@ begin -- STR
         port map(
             clk_in => clk,
             clk_out => clk_gen_out,
-            rst => rst
+            rst => rst_low
         );
 
 
     U_CPU : entity work.cpu_top
         port map(
             clk => clk_gen_out,
-            rst => rst,
+            rst => rst_low,
             inport_enable => inport_enable,
             switches => switch,
             leds => leds,
@@ -58,7 +62,7 @@ begin -- STR
     U_VGA : entity work.vga_top
         port map(
             clk => clk_gen_out,
-            rst => rst,
+            rst => rst_low,
 
             cpu_is_writing => writing_to_vram,
             wraddr => wraddr,
