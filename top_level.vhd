@@ -64,9 +64,11 @@ begin -- STR
             clk => clk_gen_out,
             rst => rst_low,
 
-            cpu_is_writing => writing_to_vram,
+            cpu_says_swap_buf => writing_to_vram,
+            swap_complete => open,
             wraddr => wraddr,
             data => data,
+            back_buf_wren => '1',
 
             vga_hsync => vga_hsync,
             vga_vsync => vga_vsync,

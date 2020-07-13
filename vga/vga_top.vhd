@@ -5,8 +5,10 @@ entity vga_top is
 		clk, rst : in std_logic;
 
 		-- Signals for receiving VRAM data from CPU
-		cpu_is_writing : in std_logic;
+		cpu_says_swap_buf : in std_logic; -- Instruction from CPU that the buffer is done and ready to be swapped.
+		swap_complete : out std_logic; -- Flag for when they have been swapped.
 		wraddr, data : in std_logic_vector(11 downto 0);
+		back_buf_wren : in std_logic;
 
 		vga_hsync, vga_vsync : out std_logic;
 		r, g, b : out std_logic_vector(3 downto 0)
@@ -45,9 +47,11 @@ begin -- STR
 			clk => clk,
 			rst => rst,
 
-			cpu_is_writing => cpu_is_writing,
+			cpu_says_swap_buf => cpu_says_swap_buf,
+			swap_complete => swap_complete,
 			wraddr => wraddr,
 			data => data,
+			back_buf_wren => back_buf_wren,
 
 
 			video_on => video_on,

@@ -10,8 +10,10 @@ port (
 	-- video_on controlled by sync gen
 	video_on, clk, rst : in std_logic;
 
-	cpu_is_writing : in std_logic;
+	cpu_says_swap_buf : in std_logic;
+	swap_complete : out std_logic;
 	wraddr, data : in std_logic_vector(11 downto 0);
+	back_buf_wren : in std_logic;
 	
 	r, g, b : out std_logic_vector(3 downto 0)
 );
@@ -33,16 +35,19 @@ begin
 			clk => clk,
 			rst => rst,
 
-			cpu_is_writing => cpu_is_writing,
+			cpu_says_swap_buf => cpu_says_swap_buf,
+			swap_complete => swap_complete,
+
 			video_on => video_on,
 			vcount => vcount,
 			hcount => hcount,
 
 			readAddr => readaddr,
 			wrAddr => wraddr,
-			data => data,
+			wrData => data,
+			back_buf_wren => back_buf_wren,
 			
-			q => q
+			readData => q
 		);
 	
 
