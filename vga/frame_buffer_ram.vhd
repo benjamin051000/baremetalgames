@@ -40,6 +40,7 @@ LIBRARY altera_mf;
 USE altera_mf.altera_mf_components.all;
 
 ENTITY frame_buffer_ram IS
+	generic(name : string := "./egn_logo.mif");
 	PORT
 	(
 		address		: IN STD_LOGIC_VECTOR (11 DOWNTO 0);
@@ -62,7 +63,7 @@ BEGIN
 	GENERIC MAP (
 		clock_enable_input_a => "BYPASS",
 		clock_enable_output_a => "BYPASS",
-		init_file => "../../vga/buffer_init.mif",
+		init_file => name,
 		intended_device_family => "MAX 10",
 		lpm_hint => "ENABLE_RUNTIME_MOD=NO",
 		lpm_type => "altsyncram",

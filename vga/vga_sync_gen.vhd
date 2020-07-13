@@ -56,7 +56,7 @@ begin
                 hsync <= '0'; -- Active L
             end if;
         
-				if(v >= VSYNC_BEGIN and v <= VSYNC_END) then
+            if(v >= VSYNC_BEGIN and v <= VSYNC_END) then
                 vsync <= '0';
             end if;
         

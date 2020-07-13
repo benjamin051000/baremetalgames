@@ -32,6 +32,7 @@ begin
 
     -- Instantiate RAM
     U_RAM_A : entity work.frame_buffer_ram
+        generic map(name => "./a.mif")
         port map (
             clock => clk,
             address => addr_a,
@@ -40,7 +41,8 @@ begin
             q => q_a
         );
 
-    U_RAM_B : entity work.vga_ram
+    U_RAM_B : entity work.frame_buffer_ram
+        generic map(name => "./b.mif")
         port map (
             clock => clk,
             address => addr_b,
@@ -51,7 +53,7 @@ begin
 
     
     -- Set the swap frames flag when we have finished drawing the frame, and only if the CPU is done writing the next frame.
-    swap_frames <= '1' when to_integer(unsigned(vcount)) = 0 and to_integer(unsigned(hcount)) = H_MAX and cpu_is_writing = '0' else '0';
+    swap_frames <= '1' when to_integer(unsigned(vcount)) = V_MAX-1 and to_integer(unsigned(hcount)) = H_MAX and cpu_is_writing = '0' else '0';
     
     
     -- Sequential process to handle state transition
