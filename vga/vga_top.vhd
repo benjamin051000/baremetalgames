@@ -1,15 +1,21 @@
 library ieee;
 use ieee.std_logic_1164.all;
+
 entity vga_top is
 	port (
 		clk, rst : in std_logic;
 
 		-- Signals for receiving VRAM data from CPU
-		cpu_says_swap_buf : in std_logic; -- Instruction from CPU that the buffer is done and ready to be swapped.
-		swap_complete : out std_logic; -- Flag for when they have been swapped.
+		-- Instruction from CPU that the buffer is done and ready to be swapped.
+		cpu_says_swap_buf : in std_logic; 
+		-- Flag for CPU once buffers have been swapped.
+		swap_complete : out std_logic; 
+		
+		-- Address and data lines for incoming data from CPU to the back buffer.
 		wraddr, data : in std_logic_vector(11 downto 0);
 		back_buf_wren : in std_logic;
-
+		
+		-- Output signals to the display.
 		vga_hsync, vga_vsync : out std_logic;
 		r, g, b : out std_logic_vector(3 downto 0)
 	);

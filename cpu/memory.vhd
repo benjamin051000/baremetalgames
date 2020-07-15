@@ -16,8 +16,11 @@ port (
     outportData, readData : out std_logic_vector(WIDTH-1 downto 0);
 
     -- Used to send data from memory to VRAM
-    writing_to_vram : out std_logic;
-    vga_wraddr, vga_data : out std_logic_vector(11 downto 0)
+    vram_wren : out std_logic;
+    vga_wraddr, vga_data : out std_logic_vector(11 downto 0);
+    -- Signals for swapping front and back buffers in VRAM.
+    cpu_says_swap_buf : out std_logic;
+    swap_complete : in std_logic
 );
 end memory;
 
@@ -39,8 +42,9 @@ architecture str of memory is
     constant INPORT1_ADDR : natural := 65532; -- FFFC
 
     -- Highest address to CPU RAM. Any higher addresses (which will be 11 bits wide) will point to VRAM.
-    constant RAM_MAX_ADDR : natural := 1023; -- before shifting by 2
+    constant CPU_RAM_MAX_ADDR : natural := 1023; -- before shifting by 2
 
+    constant VGA_RAM_BEGIN : natural := 1024; -- First available VRAM address.
 
 begin
 
@@ -52,21 +56,24 @@ begin
     -- Logic to control outportWrEn, ramWrEn, and mux_sel
     mux_sel <=  "00" when to_integer(unsigned(addr)) = INPORT0_ADDR else
                 "01" when to_integer(unsigned(addr)) = INPORT1_ADDR else
-                "10" when to_integer(unsigned(addr)) >= 0 and to_integer(unsigned(addr)) <= RAM_MAX_ADDR
+                "10" when to_integer(unsigned(addr)) >= 0 and to_integer(unsigned(addr)) <= CPU_RAM_MAX_ADDR
                 else "10";
     
     outportWrEn <= '1' when (to_integer(unsigned(addr)) = INPORT1_ADDR) and memWrite = '1' else '0';
 
-    ramWrEn <= '1' when (to_integer(unsigned(addr)) >= 0 and to_integer(unsigned(addr)) <= RAM_MAX_ADDR) and memWrite = '1' else '0';
+    ramWrEn <= '1' when (to_integer(unsigned(addr)) >= 0 and to_integer(unsigned(addr)) <= CPU_RAM_MAX_ADDR) and memWrite = '1' else '0';
 
     -------------------- VGA Output --------------------
 
-    -- vga_wren will be asserted during store word instructions when the address is higher than the maximum value allotted for CPU RAM.
-    writing_to_vram <= not ramWrEn and memWrite;
+    -- vram_wren will be asserted during store word instructions when the address is higher than the maximum value allotted for CPU RAM.
+    vram_wren <= not ramWrEn and memWrite;
 
     -- Address and data in VRAM are both 12 bits wide
     vga_data <= writeData(11 downto 0);
-    vga_wraddr <= addr(11 downto 0); -- 
+    vga_wraddr <= addr(11 downto 0);
+
+    -- TODO this is just temporary to make sure it compiles properly
+    cpu_says_swap_buf <= '0';
 
     -------------------- Structural architecture of memory --------------------
 

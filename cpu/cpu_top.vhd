@@ -9,9 +9,14 @@ port(
     switches : in std_logic_vector(9 downto 0);
     leds : out std_logic_vector(31 downto 0);
 
-    -- Used to send data to VRAM
-    writing_to_vram : out std_logic;
-    vga_wraddr, vga_data : out std_logic_vector(11 downto 0)
+    -- Write enable for VGA back buffer.
+    vram_wren : out std_logic;
+    -- Address/Data lines for vga back buffer.
+    vga_wraddr, vga_data : out std_logic_vector(11 downto 0);
+    -- cpu_says_swap_buf should be asserted ('1') when CPU is done writing to back buffer, meaning it is ready to be swapped with the front buffer.
+    cpu_says_swap_buf : out std_logic;
+    -- swap_complete will be asserted ('1') when the swap is complete and the cpu can begin writing to the back buffer again.
+    swap_complete : in std_logic
 );
 end cpu_top;
 
@@ -78,9 +83,13 @@ begin
         switches => switches,
         leds => leds,
 
-        writing_to_vram => writing_to_vram,
+        -- VGA-CPU comm signals
+        vram_wren => vram_wren,
         vga_wraddr => vga_wraddr,
-        vga_data => vga_data
+        vga_data => vga_data,
+
+        cpu_says_swap_buf => cpu_says_swap_buf, -- To vga
+        swap_complete => swap_complete  -- From vga
     );
 
 

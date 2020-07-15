@@ -21,8 +21,11 @@ port (
     clk, rst : in std_logic;
 
     -- Used to send data to VRAM
-    writing_to_vram : out std_logic;
-    vga_wraddr, vga_data : out std_logic_vector(11 downto 0)
+    vram_wren : out std_logic;
+    vga_wraddr, vga_data : out std_logic_vector(11 downto 0);
+
+    cpu_says_swap_buf : out std_logic;
+    swap_complete : in std_logic
 );
 end datapath;
 
@@ -134,9 +137,12 @@ begin
         outportData => leds,
         readData => sig_memory_out,
 
-        writing_to_vram => writing_to_vram,
+        writing_to_vram => vram_wren,
         vga_wraddr => vga_wraddr,
-        vga_data => vga_data
+        vga_data => vga_data,
+        
+        cpu_says_swap_buf => cpu_says_swap_buf,
+        swap_complete => swap_complete
     );
 
     
