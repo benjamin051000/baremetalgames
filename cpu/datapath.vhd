@@ -137,7 +137,7 @@ begin
         outportData => leds,
         readData => sig_memory_out,
 
-        writing_to_vram => vram_wren,
+        vram_wren => vram_wren,
         vga_wraddr => vga_wraddr,
         vga_data => vga_data,
         
