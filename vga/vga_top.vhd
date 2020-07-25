@@ -30,8 +30,11 @@ architecture STR of vga_top is
 	-- VGA signals
 	signal hcount, vcount : std_logic_vector(9 downto 0);
 	signal video_on : std_logic;
+	signal vsync_signal : std_logic;
 
 begin -- STR
+
+	vga_vsync <= vsync_signal;
 
 	-- VGA Sync Gen
 	U_VGA_SYNC : entity work.vga_sync_gen
@@ -41,7 +44,7 @@ begin -- STR
 			Hcount => hcount,
 			Vcount => vcount,
 			hsync => vga_hsync,
-			vsync => vga_vsync,
+			vsync => vsync_signal,
 			video_on => video_on
 		);
 
@@ -58,6 +61,7 @@ begin -- STR
 			wraddr => wraddr,
 			data => data,
 			back_buf_wren => back_buf_wren,
+			vsync => vsync_signal,
 
 
 			video_on => video_on,

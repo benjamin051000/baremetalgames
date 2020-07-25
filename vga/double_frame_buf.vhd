@@ -20,8 +20,11 @@ entity double_frame_buf is
         swap_complete : out std_logic;
         
         -- Used to tell when the frame is done being drawn.
-        video_on : in std_logic;
+        -- video_on : in std_logic;
         vcount, hcount : in std_logic_vector(9 downto 0);
+
+        -- vsync signal is used as a marker for when it is okay to swap buffer frames.
+        vsync : in std_logic;
 
         -- Data coming from readAddr going to the monitor.
         readData : out std_logic_vector(11 downto 0)
@@ -35,6 +38,7 @@ architecture bhv of double_frame_buf is
     signal wren_a, wren_b : std_logic;
 
     -- Signals to tell when to swap frames, and when to alert cpu it's done.
+    -- swap_frames is a flip flop.
     signal swap_frames, swap_complete_temp : std_logic;
     
 
@@ -65,12 +69,9 @@ begin
             q => readData_b
         );
 
-    
-    
-    
     swap_complete <= swap_complete_temp;
 
-    -- Sequential process to remember if swap_frames was asserted
+    -- Sequential process to remember if swap_frames was asserted. This value is remembered, so it does not need to be held in the CPU.
     -- Set the swap frames flag when we have finished drawing the frame, and only if the CPU is done writing the next frame.
     process(clk, rst)
     begin
@@ -78,7 +79,7 @@ begin
             swap_frames <= '0';
         elsif rising_edge(clk) then
             -- Remember what the CPU tells us to do.
-            if(video_on = '0' and cpu_says_swap_buf = '1') then
+            if(cpu_says_swap_buf = '1') then
                 swap_frames <= '1';
             end if;
             
@@ -89,6 +90,8 @@ begin
         end if;
     end process;
     
+    --------------------------------------------------------------------------------------------
+
     -- Sequential process to handle state transition
     process (clk, rst)
     begin
@@ -100,7 +103,7 @@ begin
     end process;
 
     -- Combinational process to determine outputs based on state and inputs
-    process (state, readAddr, wrAddr, readData_a, readData_b, swap_frames, back_buf_wren)
+    process (state, readAddr, wrAddr, readData_a, readData_b, swap_frames, back_buf_wren, vsync)
     begin
         next_state <= state;
         swap_complete_temp <= '0';
@@ -115,7 +118,7 @@ begin
                 wren_b <= '0';
                 readData <= readData_b;  -- Buffer output (to RGB signals) comes from readAddr
 
-                if (swap_frames = '1') then
+                if (swap_frames = '1' and vsync = '0') then
                     next_state <= B;
                     -- On the next cycle, tell the CPU the swap was done.
                     swap_complete_temp <= '1';
@@ -131,7 +134,7 @@ begin
                 wren_a <= '0';
                 readData <= readData_a;
 
-                if (swap_frames = '1') then
+                if (swap_frames = '1' and vsync = '0') then
                     next_state <= A;
                     -- On the next cycle, tell the CPU the swap was done.
                     swap_complete_temp <= '1';

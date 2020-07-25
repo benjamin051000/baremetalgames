@@ -7,8 +7,9 @@ use work.vga_lib.all;
 entity rgb_gen is
 port (
 	vcount, hcount : in std_logic_vector(9 downto 0);
-	-- video_on controlled by sync gen
-	video_on, clk, rst : in std_logic;
+	-- video_on and vsync controlled by sync gen
+	video_on, vsync : in std_logic;
+	clk, rst : in std_logic;
 
 	cpu_says_swap_buf : in std_logic;
 	swap_complete : out std_logic;
@@ -38,7 +39,7 @@ begin
 			cpu_says_swap_buf => cpu_says_swap_buf,
 			swap_complete => swap_complete,
 
-			video_on => video_on,
+			vsync => vsync,
 			vcount => vcount,
 			hcount => hcount,
 
