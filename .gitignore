@@ -11,3 +11,5 @@
 /scripts
 # Ignore .mif (for now)
 *.mif
+
+cbx_args.txt
