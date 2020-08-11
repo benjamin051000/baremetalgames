@@ -28,7 +28,7 @@ end memory;
 architecture str of memory is
 
     -- adjustedAddr is used as an intermediate signal to check whether data should be written to VRAM or RAM.
-    signal adjustedAddr : std_logic_vector(WIDTH-1 downto 0);
+    signal adjustedAddr : std_logic_vector(WIDTH-1 downto 0); -- TODO unused?
 
     signal inport0En, inport1En : std_logic;
     
@@ -51,8 +51,9 @@ architecture str of memory is
     constant cpu_swap_buf_addr : natural := 65534; -- 0xFFFE
 
     -- This address points to a Flip Flop to check if swap_complete was asserted. This is how we will check when it is safe to write to the VGA back frame again.
+    -- The delayed version is used when accessing this ram section, since it takes two cycles to retrieve memory. This ensures swap_complete_capture is read from memory on the right clock cycle.
     constant swap_complete_addr : natural := 65535; -- 0xFFFF
-    signal swap_complete_capture : std_logic_vector(WIDTH-1 downto 0);
+    signal swap_complete_capture, swap_cmp_cap_del : std_logic_vector(WIDTH-1 downto 0);
 
 begin -- str
 
@@ -147,6 +148,16 @@ begin -- str
         output => mux_sel_delayed
     );
 
+    U_DELAY_SWAP_COMPLETE : entity work.reg
+    generic map (width => 32)
+    port map (
+        clk => clk,
+        rst => rst,
+        en => '1',
+        input => swap_complete_capture,
+        output => swap_cmp_cap_del
+    );
+
     -- Mux that controls what the CPU is reading
     U_READ_MUX : entity work.mux_4x1
     generic map (width => 32)
@@ -154,7 +165,7 @@ begin -- str
         input1 => inport0Data,
         input2 => inport1Data,
         input3 => ramData,
-        input4 => swap_complete_capture,
+        input4 => swap_cmp_cap_del,
         sel => mux_sel_delayed,
         output => readData
     );
